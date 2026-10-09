@@ -1,0 +1,1083 @@
+<title>Formulas Practice Ground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Layout concept: an exam answer-sheet — a ruled paper surface for the
+     reference formulas, a registration card to start a test, and a timed
+     answer booklet where each question is graded like a teacher's red pen. */
+  :root{
+    --bg:#eef1f4;
+    --paper:#ffffff;
+    --ink:#1c2535;
+    --ink-soft:#56607a;
+    --line:#d7dce5;
+    --accent:#2b4fd8;
+    --accent-ink:#ffffff;
+    --accent-soft:#e8ecfb;
+    --good:#1f7a4d;
+    --good-soft:#e3f3ea;
+    --bad:#c23b3b;
+    --bad-soft:#fbe9e9;
+    --warn:#b5790a;
+    --warn-soft:#faf0dd;
+    --rule:#c7cedb;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#11141c;
+      --paper:#171c27;
+      --ink:#e9ecf3;
+      --ink-soft:#a3acc4;
+      --line:#2b3246;
+      --accent:#7b94ff;
+      --accent-ink:#0c1020;
+      --accent-soft:#1d2440;
+      --good:#5fcf98;
+      --good-soft:#163427;
+      --bad:#ef7b7b;
+      --bad-soft:#3a1e20;
+      --warn:#e0b354;
+      --warn-soft:#3a2f16;
+      --rule:#333c54;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#11141c;
+    --paper:#171c27;
+    --ink:#e9ecf3;
+    --ink-soft:#a3acc4;
+    --line:#2b3246;
+    --accent:#7b94ff;
+    --accent-ink:#0c1020;
+    --accent-soft:#1d2440;
+    --good:#5fcf98;
+    --good-soft:#163427;
+    --bad:#ef7b7b;
+    --bad-soft:#3a1e20;
+    --warn:#e0b354;
+    --warn-soft:#3a2f16;
+    --rule:#333c54;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Work Sans",system-ui,sans-serif;
+    padding-inline:16px;
+    padding-block:20px;
+    display:flex;
+    justify-content:center;
+  }
+  #app{width:100%;max-width:760px;display:flex;flex-direction:column;gap:18px;min-width:0}
+  [hidden]{display:none!important}
+
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:600;text-wrap:balance;margin:0}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+  /* ---------- header ---------- */
+  .topbar{
+    display:flex;flex-direction:column;gap:4px;
+    padding-bottom:14px;border-bottom:2px solid var(--ink);
+  }
+  .topbar .eyebrow{
+    font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;
+  }
+  .topbar h1{font-size:1.5rem;line-height:1.2}
+  .topbar p{margin:2px 0 0;color:var(--ink-soft);font-size:.92rem}
+
+  /* ---------- generic paper card ---------- */
+  .card{
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    padding:18px;display:flex;flex-direction:column;gap:14px;
+    min-width:0;
+  }
+  .card > h2{font-size:1.15rem}
+  .card .sub{color:var(--ink-soft);font-size:.86rem;margin-top:-8px}
+
+  /* ---------- formula sheet ---------- */
+  .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tab-btn{
+    font:inherit;font-weight:600;font-size:.82rem;
+    border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);
+    padding:7px 14px;border-radius:999px;cursor:pointer;
+  }
+  .tab-btn[aria-selected="true"]{
+    background:var(--accent);border-color:var(--accent);color:var(--accent-ink);
+  }
+  .formula-list{display:flex;flex-direction:column}
+  .formula-list[hidden]{display:none}
+  .formula-row{
+    display:grid;grid-template-columns:1.6em 1fr;gap:10px;
+    padding-block:10px;border-bottom:1px dashed var(--rule);
+    align-items:baseline;
+  }
+  .formula-row:last-child{border-bottom:none}
+  .f-num{color:var(--ink-soft);font-size:.8rem;font-variant-numeric:tabular-nums}
+  .f-expr{font-size:.98rem;overflow-x:auto}
+  .f-expr sup{font-size:.68em}
+  .f-expr .eq{color:var(--accent);margin-inline:.35em;font-weight:600}
+  .f-note{font-size:.8rem;color:var(--ink-soft);margin-top:2px}
+
+  details.hint{border:1px solid var(--line);border-radius:8px;background:var(--accent-soft)}
+  details.hint summary{cursor:pointer;padding:10px 12px;font-weight:600;font-size:.86rem;color:var(--accent)}
+  details.hint .hint-body{padding:0 12px 12px;font-size:.85rem;color:var(--ink-soft);line-height:1.5}
+  details.hint .hint-body code{font-family:"IBM Plex Mono",monospace;background:var(--paper);padding:1px 5px;border-radius:4px;border:1px solid var(--line)}
+
+  /* ---------- setup form ---------- */
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:.82rem;font-weight:600;color:var(--ink-soft)}
+  .field select, .field input[type=number]{
+    font:inherit;font-size:.95rem;padding:9px 11px;border-radius:8px;
+    border:1px solid var(--line);background:var(--bg);color:var(--ink);
+    width:100%;
+  }
+  .field select:focus, .field input:focus, .answer-input:focus, button:focus-visible{
+    outline:2px solid var(--accent);outline-offset:1px;
+  }
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:480px){.form-grid{grid-template-columns:1fr}}
+  .pool-note{font-size:.78rem;color:var(--ink-soft)}
+
+  .btn{
+    font:inherit;font-weight:600;font-size:.92rem;border-radius:8px;cursor:pointer;
+    padding:11px 18px;border:1px solid transparent;
+  }
+  .btn-primary{background:var(--accent);color:var(--accent-ink)}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+  .btn-danger{background:var(--bad);color:#fff}
+  .btn[disabled]{opacity:.45;cursor:not-allowed}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap}
+
+  /* ---------- test view ---------- */
+  .test-head{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+  .progress-chip{font-size:.8rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+  .timer{
+    font-family:"IBM Plex Mono",monospace;font-size:1.05rem;font-weight:600;
+    padding:5px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);
+    font-variant-numeric:tabular-nums;
+  }
+  .timer.low{background:var(--bad-soft);color:var(--bad)}
+  .progress-bar{height:5px;border-radius:99px;background:var(--line);overflow:hidden}
+  .progress-fill{height:100%;background:var(--accent);width:0%;transition:width .2s}
+
+  .q-card{display:flex;flex-direction:column;gap:14px}
+  .q-label{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+  .q-prompt{
+    font-size:1.25rem;line-height:1.5;word-break:break-word;
+  }
+  .q-prompt sup{font-size:.65em}
+  .q-dir{font-size:.78rem;color:var(--ink-soft)}
+  .answer-input{
+    font:inherit;font-family:"IBM Plex Mono",monospace;font-size:1.05rem;
+    padding:12px;border-radius:8px;border:1.5px solid var(--line);
+    background:var(--bg);color:var(--ink);width:100%;
+  }
+  .q-nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+  .palette-toggle{font-size:.82rem;color:var(--accent);background:none;border:none;font-weight:600;cursor:pointer;padding:4px 0;text-align:left}
+  .palette{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:6px}
+  .palette button{
+    font:inherit;font-size:.78rem;font-variant-numeric:tabular-nums;font-weight:600;
+    width:34px;height:34px;border-radius:7px;border:1px solid var(--line);
+    background:var(--bg);color:var(--ink-soft);cursor:pointer;
+  }
+  .palette button.st-answered{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+  .palette button.st-skipped{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+  .palette button.st-current{outline:2px solid var(--accent);outline-offset:1px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.76rem;color:var(--ink-soft)}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .dot{width:9px;height:9px;border-radius:99px;display:inline-block}
+  .dot.not{background:var(--line)}
+  .dot.ans{background:var(--good)}
+  .dot.skip{background:var(--warn)}
+
+  /* ---------- confirm submit ---------- */
+  .confirm-box{display:flex;flex-direction:column;gap:10px}
+  .stat-row{display:flex;gap:10px;flex-wrap:wrap}
+  .stat-pill{
+    flex:1;min-width:90px;background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    padding:10px;text-align:center;
+  }
+  .stat-pill b{display:block;font-size:1.3rem;font-family:"Fraunces",serif}
+  .stat-pill span{font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em}
+
+  /* ---------- results ---------- */
+  .score-banner{
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  }
+  .score-ring{
+    width:84px;height:84px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    border:4px solid var(--accent);font-family:"Fraunces",serif;
+  }
+  .score-ring b{font-size:1.4rem;line-height:1}
+  .score-ring small{font-size:.6rem;color:var(--ink-soft)}
+  .result-row{
+    border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px;
+  }
+  .result-row.r-correct{border-left:4px solid var(--good)}
+  .result-row.r-wrong{border-left:4px solid var(--bad)}
+  .result-row.r-skipped{border-left:4px solid var(--warn)}
+  .r-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  .r-tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:99px}
+  .r-correct .r-tag{background:var(--good-soft);color:var(--good)}
+  .r-wrong .r-tag{background:var(--bad-soft);color:var(--bad)}
+  .r-skipped .r-tag{background:var(--warn-soft);color:var(--warn)}
+  .r-prompt{font-size:.95rem}
+  .r-ans{font-size:.88rem;font-family:"IBM Plex Mono",monospace;overflow-x:auto}
+  .r-ans b{font-family:"Work Sans",sans-serif;font-weight:600;font-size:.76rem;color:var(--ink-soft);margin-right:6px}
+  .results-list{display:flex;flex-direction:column;gap:10px}
+
+  footer.note{font-size:.76rem;color:var(--ink-soft);text-align:center;padding-block:4px}
+</style>
+
+<div id="app">
+
+  <header class="topbar">
+    <span class="eyebrow">Mogibara Mathematics</span>
+    <h1>Formulas Practice Ground</h1>
+    <p>Algebraic identities — learn them on the sheet below, then test yourself against the clock.</p>
+  </header>
+
+  <!-- ===================== HOME ===================== -->
+  <section id="view-home">
+
+    <section class="card">
+      <h2>Reference Sheet</h2>
+      <p class="sub">Every identity, General and Advanced. Read through before you start a test.</p>
+      <div class="tabs" role="tablist">
+        <button class="tab-btn" id="tab-general" role="tab" aria-selected="true">General (12)</button>
+        <button class="tab-btn" id="tab-advanced" role="tab" aria-selected="false">Advanced (18)</button>
+      </div>
+      <div id="list-general" class="formula-list"></div>
+      <div id="list-advanced" class="formula-list" hidden></div>
+    </section>
+
+    <section class="card">
+      <h2>Start a Test</h2>
+      <p class="sub">Pick a formula set, how many questions, and how much time.</p>
+
+      <div class="field">
+        <label for="set-category">Formula set</label>
+        <select id="set-category">
+          <option value="both" selected>Both — General + Advanced</option>
+          <option value="general">General only</option>
+          <option value="advanced">Advanced only</option>
+        </select>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="set-count">Number of questions</label>
+          <input type="number" id="set-count" value="10" min="5" max="200" step="1">
+          <span class="pool-note" id="count-note" style="margin-top:0"></span>
+        </div>
+        <div class="field">
+          <label for="set-time">Time limit (minutes)</label>
+          <input type="number" id="set-time" value="15" min="1" max="120" step="1">
+        </div>
+      </div>
+      <p class="pool-note" id="pool-note"></p>
+
+      <details class="hint">
+        <summary>How your answer is checked</summary>
+        <div class="hint-body">
+          A formula is shown with one side missing — type the other side.<br>
+          · Powers: <code>a^2</code> or <code>a²</code> — both work.<br>
+          · Division: <code>a/b</code> or <code>a÷b</code> — both work.<br>
+          · Multiplication: <code>×</code> or <code>*</code> or nothing at all — <code>A×(a+b)</code>, <code>A*(a+b)</code> and <code>A(a+b)</code> all work.<br>
+          · Term order never matters — write the terms in <u>any</u> order, any number of ways: <code>a²+2ab+b²</code>, <code>b²+a²+2ab</code>, <code>2ab+b²+a²</code> … all count as correct, as long as the terms themselves are right.<br>
+          · Checking is approximate. The correct answer is always shown after you submit, so you can judge for yourself too.
+        </div>
+      </details>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-start">Start Test</button>
+      </div>
+    </section>
+
+    <footer class="note">Works on phone, tablet or laptop. Nothing leaves your browser.</footer>
+  </section>
+
+  <!-- ===================== TEST ===================== -->
+  <section id="view-test" hidden>
+    <section class="card">
+      <div class="test-head">
+        <span class="progress-chip" id="progress-chip">Question 1 / 10</span>
+        <span class="timer" id="timer-display">15:00</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </section>
+
+    <section class="card q-card">
+      <div>
+        <span class="q-label" id="q-set-label">General formula</span>
+        <div class="q-prompt" id="q-prompt"></div>
+        <div class="q-dir" id="q-dir"></div>
+      </div>
+      <input type="text" class="answer-input mono" id="answer-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the missing side, e.g. a^2+2ab+b^2">
+      <div class="q-nav">
+        <button class="btn btn-ghost" id="btn-prev">← Previous</button>
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="btn-skip">Skip</button>
+          <button class="btn btn-primary" id="btn-save-next">Save &amp; Next →</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <button class="palette-toggle" id="palette-toggle">Show question palette ▾</button>
+      <div id="palette-wrap" hidden>
+        <div class="legend">
+          <span><i class="dot not"></i> Not visited</span>
+          <span><i class="dot ans"></i> Answered</span>
+          <span><i class="dot skip"></i> Skipped</span>
+        </div>
+        <div class="palette" id="palette"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-danger" id="btn-review">Preview &amp; Submit Test</button>
+      </div>
+    </section>
+  </section>
+
+  <!-- ===================== CONFIRM SUBMIT (inline panel) ===================== -->
+  <section id="view-confirm" hidden>
+    <section class="card confirm-box">
+      <h2>Submit the test?</h2>
+      <div class="stat-row">
+        <div class="stat-pill"><b id="c-answered">0</b><span>Answered</span></div>
+        <div class="stat-pill"><b id="c-skipped">0</b><span>Skipped</span></div>
+        <div class="stat-pill"><b id="c-total">0</b><span>Total</span></div>
+        <div class="stat-pill"><b id="c-time">0:00</b><span>Time left</span></div>
+      </div>
+      <p class="sub" style="margin-top:0">Skipped and blank questions are marked wrong, with the correct answer shown.</p>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="btn-back-to-test">Go back</button>
+        <button class="btn btn-primary" id="btn-confirm-submit">Submit Test</button>
+      </div>
+    </section>
+  </section>
+
+  <!-- ===================== RESULTS ===================== -->
+  <section id="view-results" hidden>
+    <section class="card">
+      <div class="score-banner">
+        <div class="score-ring"><b id="res-score">0</b><small id="res-outof">/ 0</small></div>
+        <div>
+          <h2 id="res-heading">Test complete</h2>
+          <p class="sub" style="margin-top:4px" id="res-sub"></p>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-pill"><b id="res-correct">0</b><span>Correct</span></div>
+        <div class="stat-pill"><b id="res-wrong">0</b><span>Wrong</span></div>
+        <div class="stat-pill"><b id="res-skipped">0</b><span>Skipped</span></div>
+        <div class="stat-pill"><b id="res-time">0:00</b><span>Time taken</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-retake">Start a New Test</button>
+        <button class="btn btn-ghost" id="btn-review-sheet">Back to Formula Sheet</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Answer by answer</h2>
+      <div class="results-list" id="results-list"></div>
+    </section>
+  </section>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   1. FORMULA DATA  (raw strings use ^ for powers, e.g. a^2)
+   ============================================================ */
+var GENERAL = [
+  "(a+b)^2=a^2+2ab+b^2",
+  "(a-b)^2=a^2-2ab+b^2",
+  "a^2-b^2=(a+b)(a-b)",
+  "(a+b+c)^2=a^2+b^2+c^2+2ab+2bc+2ca",
+  "(a+b)^3=a^3+3a^2b+3ab^2+b^3",
+  "(a-b)^3=a^3-3a^2b+3ab^2-b^3",
+  "a^3-b^3=(a-b)(a^2+ab+b^2)",
+  "a^4-b^4=(a-b)(a^3+a^2b+ab^2+b^3)",
+  "a^5-b^5=(a-b)(a^4+a^3b+a^2b^2+ab^3+b^4)",
+  "a^3+b^3=(a+b)(a^2-ab+b^2)",
+  "a^5+b^5=(a+b)(a^4-a^3b+a^2b^2-ab^3+b^4)",
+  "a^7+b^7=(a+b)(a^6-a^5b+a^4b^2-a^3b^3+a^2b^4-ab^5+b^6)"
+];
+
+var ADVANCED = [
+  "(a+b+c)^3=a^3+b^3+c^3+3(a+b)(b+c)(c+a)",
+  "(a+b+c)^3-(a^3+b^3+c^3)=3(a+b)(b+c)(c+a)",
+  "(x+a)(x+b)(x+c)=x^3+(a+b+c)x^2+(ab+bc+ca)x+abc",
+  "(x-a)(x-b)(x-c)=x^3-(a+b+c)x^2+(ab+bc+ca)x-abc",
+  "(a+b+c)(ab+bc+ca)-abc=(a+b)(b+c)(c+a)",
+  "(a+b+c)(a^2+b^2+c^2-ab-bc-ca)=a^3+b^3+c^3-3abc",
+  "a^2(b+c)+b^2(c+a)+c^2(a+b)+2abc=(a+b)(b+c)(c+a)",
+  "ab(a+b)+bc(b+c)+ca(c+a)+2abc=(a+b)(b+c)(c+a)",
+  "a(b^2+c^2)+b(c^2+a^2)+c(a^2+b^2)+2abc=(a+b)(b+c)(c+a)",
+  "a^2(b+c)+b^2(c+a)+c^2(a+b)+3abc=(a+b+c)(ab+bc+ca)",
+  "ab(a+b)+bc(b+c)+ca(c+a)+3abc=(a+b+c)(ab+bc+ca)",
+  "a(b^2+c^2)+b(c^2+a^2)+c(a^2+b^2)+3abc=(a+b+c)(ab+bc+ca)",
+  "a^2(b-c)+b^2(c-a)+c^2(a-b)=-(a-b)(b-c)(c-a)",
+  "bc(b-c)+ca(c-a)+ab(a-b)=-(a-b)(b-c)(c-a)",
+  "a^3(b-c)+b^3(c-a)+c^3(a-b)=-(b-c)(c-a)(a-b)(a+b+c)",
+  "a^3(b^2-c^2)+b^3(c^2-a^2)+c^3(a^2-b^2)=-(a-b)(b-c)(c-a)(ab+bc+ca)",
+  "a(b^2-c^2)+b(c^2-a^2)+c(a^2-b^2)=(a-b)(b-c)(c-a)"
+];
+/* Conditional identity, asked one direction only */
+var SPECIAL = { prompt: "If a+b+c=0, then a^3+b^3+c^3 = ?", answer: "3abc" };
+
+/* ============================================================
+   2. DISPLAY — turn "a^2" into a² with <sup>
+   ============================================================ */
+function escapeHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function renderMath(raw){
+  var s = escapeHtml(raw);
+  s = s.replace(/\^(\d+)/g, "<sup>$1</sup>");
+  return s;
+}
+
+/* ============================================================
+   3. ANSWER CHECKER
+   Two engines:
+   - Polynomial engine (default): fully expands brackets and powers,
+     combines like terms, and compares the resulting polynomials.
+     This accepts any valid rearrangement AND any valid expansion/
+     factoring of the same expression — not just reordered terms.
+   - Legacy term-reorder engine: used only as a fallback when the
+     text contains "/" (division), which the polynomial engine
+     does not attempt to rationalise.
+   ============================================================ */
+var SUP_MAP = {"⁰":"0","¹":"1","²":"2","³":"3","⁴":"4","⁵":"5","⁶":"6","⁷":"7","⁸":"8","⁹":"9"};
+
+function preprocess(raw){
+  if(!raw) return "";
+  var s = String(raw);
+  s = s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, function(ch){ return "^"+SUP_MAP[ch]; });
+  s = s.toLowerCase();
+  s = s.replace(/\s+/g, "");
+  s = s.replace(/\*\*/g, "^");
+  s = s.replace(/÷/g, "/");
+  s = s.replace(/[×·]/g, "*");
+  return s;
+}
+
+/* ---- polynomial representation: array of {coeff, vars:{letter:exp}} ---- */
+function pConst(n){ return [{coeff:n, vars:{}}]; }
+function pVar(v){ var o={}; o[v]=1; return [{coeff:1, vars:o}]; }
+
+function monoSig(vars){
+  return Object.keys(vars).filter(function(k){return vars[k]!==0;}).sort()
+    .map(function(k){ return k+"^"+vars[k]; }).join("");
+}
+function combineLike(list){
+  var map = {}, order = [];
+  list.forEach(function(m){
+    var sig = monoSig(m.vars);
+    if(!(sig in map)){ map[sig]=0; order.push(sig); }
+    map[sig]+=m.coeff;
+  });
+  var varsBySig = {};
+  list.forEach(function(m){ varsBySig[monoSig(m.vars)] = m.vars; });
+  return order.filter(function(sig){return map[sig]!==0;}).map(function(sig){
+    return {coeff:map[sig], vars:varsBySig[sig]};
+  });
+}
+function pAdd(a,b){ return combineLike(a.concat(b)); }
+function pNeg(a){ return a.map(function(m){ return {coeff:-m.coeff, vars:m.vars}; }); }
+function pSub(a,b){ return pAdd(a, pNeg(b)); }
+function pMul(a,b){
+  var out=[];
+  a.forEach(function(ma){
+    b.forEach(function(mb){
+      var vars={};
+      Object.keys(ma.vars).forEach(function(k){ vars[k]=(vars[k]||0)+ma.vars[k]; });
+      Object.keys(mb.vars).forEach(function(k){ vars[k]=(vars[k]||0)+mb.vars[k]; });
+      out.push({coeff: ma.coeff*mb.coeff, vars: vars});
+    });
+  });
+  return combineLike(out);
+}
+function pPow(a,n){
+  if(n<=0) return pConst(1);
+  var r=a;
+  for(var i=1;i<n;i++) r=pMul(r,a);
+  return r;
+}
+function pCanonical(poly){
+  return poly.map(function(m){ return m.coeff+"*"+monoSig(m.vars); })
+    .sort().join("+");
+}
+
+/* ---- tokenizer + recursive-descent parser ---- */
+function tokenize(s){
+  var toks=[], i=0;
+  while(i<s.length){
+    var c=s[i];
+    if(/[0-9]/.test(c)){
+      var j=i; while(j<s.length && /[0-9]/.test(s[j])) j++;
+      toks.push({t:"num", v:parseInt(s.slice(i,j),10)}); i=j;
+    } else if(/[a-z]/.test(c)){
+      toks.push({t:"var", v:c}); i++;
+    } else if(c==="("){ toks.push({t:"lp"}); i++; }
+    else if(c===")"){ toks.push({t:"rp"}); i++; }
+    else if(c==="^"){ toks.push({t:"caret"}); i++; }
+    else if(c==="+"||c==="-"||c==="*"){ toks.push({t:"op", v:c}); i++; }
+    else { i++; } /* ignore unrecognised characters */
+  }
+  return toks;
+}
+
+function parsePoly(s){
+  var toks = tokenize(s), pos = 0;
+  function peek(){ return toks[pos]; }
+  function next(){ return toks[pos++]; }
+
+  function parseExpr(){
+    var sign = "+";
+    if(peek() && peek().t==="op" && (peek().v==="+"||peek().v==="-")){ sign = next().v; }
+    var poly = parseTerm();
+    if(sign==="-") poly = pNeg(poly);
+    while(peek() && peek().t==="op" && (peek().v==="+"||peek().v==="-")){
+      var op = next().v;
+      var t = parseTerm();
+      poly = op==="+" ? pAdd(poly,t) : pSub(poly,t);
+    }
+    return poly;
+  }
+  function startsFactor(tok){
+    return tok && (tok.t==="num" || tok.t==="var" || tok.t==="lp");
+  }
+  function parseTerm(){
+    var poly = parseFactor();
+    while(true){
+      if(peek() && peek().t==="op" && peek().v==="*"){
+        next(); poly = pMul(poly, parseFactor()); continue;
+      }
+      if(startsFactor(peek())){
+        poly = pMul(poly, parseFactor()); continue;
+      }
+      break;
+    }
+    return poly;
+  }
+  function parseFactor(){
+    if(peek() && peek().t==="op" && peek().v==="-"){ next(); return pNeg(parseFactor()); }
+    var base = parseBase();
+    if(peek() && peek().t==="caret"){
+      next();
+      var expTok = next();
+      var n = (expTok && expTok.t==="num") ? expTok.v : 1;
+      base = pPow(base, n);
+    }
+    return base;
+  }
+  function parseBase(){
+    var tok = peek();
+    if(!tok) return pConst(0);
+    if(tok.t==="num"){ next(); return pConst(tok.v); }
+    if(tok.t==="var"){ next(); return pVar(tok.v); }
+    if(tok.t==="lp"){
+      next();
+      var e = parseExpr();
+      if(peek() && peek().t==="rp") next();
+      return e;
+    }
+    next();
+    return pConst(0);
+  }
+
+  return parseExpr();
+}
+
+/* ---- legacy term-reorder engine (fallback when "/" is present) ---- */
+function legacySplitTerms(s){
+  var terms = [], depth = 0, cur = "", sign = "+";
+  for(var i=0;i<s.length;i++){
+    var c = s[i];
+    if(c === "(") depth++;
+    if(c === ")") depth--;
+    if(depth === 0 && (c === "+" || c === "-")){
+      if(cur !== "") terms.push({sign:sign, text:cur});
+      sign = c; cur = "";
+    } else { cur += c; }
+  }
+  if(cur !== "") terms.push({sign:sign, text:cur});
+  return terms;
+}
+function legacyTokenizeFactors(s){
+  var tokens = [], i = 0;
+  while(i < s.length){
+    if(s[i] === "("){
+      var depth = 1, j = i+1;
+      while(j < s.length && depth > 0){
+        if(s[j] === "(") depth++; else if(s[j] === ")") depth--;
+        j++;
+      }
+      tokens.push({type:"group", norm: legacyNormalizeExpr(s.slice(i+1, j-1))});
+      i = j;
+    } else {
+      var k = i;
+      while(k < s.length && s[k] !== "(") k++;
+      var run = s.slice(i, k);
+      var re = /\d+|[a-z]\^?\d*|\//g, m;
+      while((m = re.exec(run))){ tokens.push({type:"atom", text:m[0]}); }
+      i = k;
+    }
+  }
+  return tokens;
+}
+function legacyTokenKey(tok){ return tok.type === "group" ? "("+tok.norm+")" : tok.text; }
+function legacyNormalizeTerm(sign, text){
+  var keys = legacyTokenizeFactors(text).map(legacyTokenKey).sort();
+  return (sign === "-" ? "-" : "+") + keys.join("");
+}
+function legacyNormalizeExpr(s){
+  var terms = legacySplitTerms(s.replace(/\*/g,""));
+  if(terms.length === 0) return "";
+  var normTerms = terms.map(function(t){ return legacyNormalizeTerm(t.sign, t.text); });
+  normTerms.sort();
+  return normTerms.join("|");
+}
+
+/* ---- public check ---- */
+function answersMatch(user, correct){
+  if(!user || !user.trim()) return false;
+  var u = preprocess(user), c = preprocess(correct);
+  if(u.indexOf("/") !== -1 || c.indexOf("/") !== -1){
+    return legacyNormalizeExpr(u) === legacyNormalizeExpr(c);
+  }
+  try{
+    return pCanonical(parsePoly(u)) === pCanonical(parsePoly(c));
+  } catch(e){
+    return legacyNormalizeExpr(u) === legacyNormalizeExpr(c);
+  }
+}
+
+/* ============================================================
+   4. FORMULA SHEET RENDER
+   ============================================================ */
+function buildSheet(list, mountId, extraRow){
+  var mount = document.getElementById(mountId);
+  var html = "";
+  list.forEach(function(raw, idx){
+    var eq = raw.indexOf("=");
+    var lhs = raw.slice(0, eq), rhs = raw.slice(eq+1);
+    html += '<div class="formula-row"><div class="f-num">'+(idx+1)+'.</div>' +
+            '<div class="f-expr mono">'+renderMath(lhs)+'<span class="eq">=</span>'+renderMath(rhs)+'</div></div>';
+  });
+  if(extraRow){
+    html += '<div class="formula-row"><div class="f-num">'+(list.length+1)+'.</div>' +
+            '<div><div class="f-expr mono">'+renderMath(extraRow.cond)+', then '+renderMath(extraRow.lhs)+'<span class="eq">=</span>'+renderMath(extraRow.rhs)+'</div>' +
+            '<div class="f-note">Conditional identity — only holds when '+renderMath(extraRow.cond)+'.</div></div></div>';
+  }
+  mount.innerHTML = html;
+}
+buildSheet(GENERAL, "list-general");
+buildSheet(ADVANCED, "list-advanced", { cond: "a+b+c=0", lhs: SPECIAL.prompt.replace("If a+b+c=0, then ","").replace(" = ?",""), rhs: SPECIAL.answer });
+
+var tabGeneral = document.getElementById("tab-general");
+var tabAdvanced = document.getElementById("tab-advanced");
+var listGeneral = document.getElementById("list-general");
+var listAdvanced = document.getElementById("list-advanced");
+tabGeneral.addEventListener("click", function(){
+  tabGeneral.setAttribute("aria-selected","true");
+  tabAdvanced.setAttribute("aria-selected","false");
+  listGeneral.hidden = false; listAdvanced.hidden = true;
+});
+tabAdvanced.addEventListener("click", function(){
+  tabAdvanced.setAttribute("aria-selected","true");
+  tabGeneral.setAttribute("aria-selected","false");
+  listAdvanced.hidden = false; listGeneral.hidden = true;
+});
+
+/* ============================================================
+   5. QUESTION POOL BUILDING
+   Each formula gets a stable id (its 1-based number within its own
+   list) so results can refer back to "General #3" etc.
+   ============================================================ */
+function poolFor(category){
+  var pool = [];
+  function addFrom(list, tag){
+    list.forEach(function(raw, idx){
+      var eq = raw.indexOf("=");
+      var lhs = raw.slice(0, eq), rhs = raw.slice(eq+1);
+      var fid = tag + "-" + (idx+1);
+      pool.push({ fid:fid, num: idx+1, set: tag, formula: raw, prompt: lhs, answer: rhs, dir: "forward" });
+      pool.push({ fid:fid, num: idx+1, set: tag, formula: raw, prompt: rhs, answer: lhs, dir: "backward" });
+    });
+  }
+  if(category === "general" || category === "both") addFrom(GENERAL, "General");
+  if(category === "advanced" || category === "both"){
+    addFrom(ADVANCED, "Advanced");
+    pool.push({ fid:"Advanced-special", num:19, set:"Advanced", formula: SPECIAL.prompt+"="+SPECIAL.answer, prompt: SPECIAL.prompt, answer: SPECIAL.answer, dir:"special" });
+  }
+  return pool;
+}
+
+function shuffle(arr){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var t=a[i]; a[i]=a[j]; a[j]=t;
+  }
+  return a;
+}
+
+/* ---- equivalence groups: formulas whose tested answer is the exact
+   same polynomial as another formula's tested answer in the same
+   question (e.g. advanced #8/#9/#10 all equal (a+b)(b+c)(c+a)).
+   Used only to annotate results, never to change grading. ---- */
+function answerSignature(text){
+  try{
+    var s = preprocess(text);
+    if(s.indexOf("/") !== -1) return null;
+    return pCanonical(parsePoly(s));
+  } catch(e){ return null; }
+}
+
+function buildEquivalenceMap(pool){
+  var bySig = {};
+  pool.forEach(function(q){
+    var sig = answerSignature(q.answer);
+    if(!sig) return;
+    if(!bySig[sig]) bySig[sig] = [];
+    if(bySig[sig].indexOf(q.fid) === -1) bySig[sig].push(q.fid);
+  });
+  var byFid = {};
+  pool.forEach(function(q){
+    var sig = answerSignature(q.answer);
+    if(!sig) return;
+    var siblings = bySig[sig].filter(function(fid){ return fid !== q.fid; });
+    if(siblings.length){
+      var key = q.fid + "|" + q.dir;
+      byFid[key] = siblings.map(function(fid){
+        var match = pool.filter(function(p){ return p.fid === fid; })[0];
+        return match.set + " #" + match.num;
+      });
+    }
+  });
+  return byFid;
+}
+
+/* ---- set-based builder: one "set" = one full shuffled lap through
+   every forward+backward entry in the chosen pool. A request longer
+   than one set starts a fresh reshuffled lap rather than thinning
+   out or skipping formulas early. ---- */
+function buildQuestions(category, count){
+  var basePool = poolFor(category);
+  var setSize = basePool.length;
+  var out = [], lastFid = null, lapsUsed = 0;
+
+  while(out.length < count){
+    var lap = shuffle(basePool);
+    // avoid the same formula landing right across a set boundary
+    if(lastFid && lap.length > 1 && lap[0].fid === lastFid){
+      var swapWith = 1 + Math.floor(Math.random() * (lap.length - 1));
+      var tmp = lap[0]; lap[0] = lap[swapWith]; lap[swapWith] = tmp;
+    }
+    lap.forEach(function(q, i){
+      if(out.length >= count) return;
+      out.push(Object.assign({}, q, { setNumber: lapsUsed + 1, setSize: setSize }));
+    });
+    lastFid = lap[lap.length - 1].fid;
+    lapsUsed++;
+  }
+  return out.slice(0, count);
+}
+
+/* ============================================================
+   6. STATE
+   ============================================================ */
+var state = null; // {questions, answers[], current, timeLeftSec, timerId, totalTimeSec}
+
+var viewHome = document.getElementById("view-home");
+var viewTest = document.getElementById("view-test");
+var viewConfirm = document.getElementById("view-confirm");
+var viewResults = document.getElementById("view-results");
+
+function showView(v){
+  [viewHome, viewTest, viewConfirm, viewResults].forEach(function(el){ el.hidden = (el !== v); });
+  window.scrollTo(0,0);
+}
+
+/* ---- setup: pool-size hint ---- */
+var setCategory = document.getElementById("set-category");
+var setCount = document.getElementById("set-count");
+var setTime = document.getElementById("set-time");
+var poolNote = document.getElementById("pool-note");
+
+var countNote = document.getElementById("count-note");
+function updatePoolNote(){
+  var n = poolFor(setCategory.value).length;
+  poolNote.textContent = "One full set of " + setCategory.selectedOptions[0].text.toLowerCase() + " = " + n + " questions (every formula, both directions). Ask for more and the test runs extra full sets — never a partial, thinned-out pass.";
+  updateCountNote();
+}
+function updateCountNote(){
+  var n = poolFor(setCategory.value).length;
+  var count = Math.max(5, Math.min(200, parseInt(setCount.value,10) || 10));
+  var sets = Math.ceil(count / n);
+  var lastSetSize = count - (sets-1)*n;
+  countNote.textContent = sets === 1
+    ? "= Set 1 only (" + count + " of " + n + " questions)."
+    : "= " + (sets-1) + " full set" + (sets-1>1?"s":"") + " of " + n + " + " + lastSetSize + " more in Set " + sets + ".";
+}
+setCategory.addEventListener("change", updatePoolNote);
+setCount.addEventListener("input", updateCountNote);
+updatePoolNote();
+
+/* ============================================================
+   7. START TEST
+   ============================================================ */
+document.getElementById("btn-start").addEventListener("click", function(){
+  var category = setCategory.value;
+  var count = Math.max(5, Math.min(200, parseInt(setCount.value,10) || 10));
+  var minutes = Math.max(1, Math.min(120, parseInt(setTime.value,10) || 15));
+
+  var questions = buildQuestions(category, count);
+  var equivMap = buildEquivalenceMap(poolFor(category));
+  state = {
+    questions: questions,
+    answers: questions.map(function(){ return {status:"unvisited", text:""}; }),
+    current: 0,
+    totalTimeSec: minutes*60,
+    timeLeftSec: minutes*60,
+    timerId: null,
+    startedAt: Date.now(),
+    equivMap: equivMap
+  };
+  state.answers[0].status = "visiting";
+  renderPalette();
+  renderQuestion();
+  startTimer();
+  showView(viewTest);
+});
+
+/* ============================================================
+   8. TEST RUNNING
+   ============================================================ */
+var progressChip = document.getElementById("progress-chip");
+var progressFill = document.getElementById("progress-fill");
+var timerDisplay = document.getElementById("timer-display");
+var qSetLabel = document.getElementById("q-set-label");
+var qPrompt = document.getElementById("q-prompt");
+var qDir = document.getElementById("q-dir");
+var answerInput = document.getElementById("answer-input");
+var paletteEl = document.getElementById("palette");
+var paletteWrap = document.getElementById("palette-wrap");
+var paletteToggle = document.getElementById("palette-toggle");
+
+function fmtTime(sec){
+  sec = Math.max(0, Math.round(sec));
+  var m = Math.floor(sec/60), s = sec%60;
+  return m + ":" + (s<10 ? "0"+s : s);
+}
+
+function startTimer(){
+  if(state.timerId) clearInterval(state.timerId);
+  state.timerId = setInterval(function(){
+    state.timeLeftSec--;
+    timerDisplay.textContent = fmtTime(state.timeLeftSec);
+    timerDisplay.classList.toggle("low", state.timeLeftSec <= 30);
+    if(state.timeLeftSec <= 0){
+      clearInterval(state.timerId);
+      syncCurrentAnswer();
+      finishTest();
+    }
+  }, 1000);
+  timerDisplay.textContent = fmtTime(state.timeLeftSec);
+}
+
+function syncCurrentAnswer(){
+  if(!state) return;
+  var a = state.answers[state.current];
+  var val = answerInput.value.trim();
+  if(val){ a.text = val; a.status = "answered"; }
+  else if(a.status !== "answered"){ a.status = "visiting"; }
+}
+
+function renderQuestion(){
+  var q = state.questions[state.current];
+  var a = state.answers[state.current];
+  qSetLabel.textContent = q.set + " formula" + (q.dir==="backward" ? " — reverse" : "");
+  qPrompt.innerHTML = renderMath(q.prompt) + ' <span class="eq" style="color:var(--ink-soft)">=</span> ?';
+  qDir.textContent = q.dir === "special" ? "Fill in the right-hand side." : "Find the missing side of the identity.";
+  answerInput.value = a.text || "";
+  var withinSet = (state.current % q.setSize) + 1;
+  progressChip.textContent = "Set " + q.setNumber + " · Question " + withinSet + "/" + q.setSize +
+    "  (" + (state.current+1) + " / " + state.questions.length + " overall)";
+  progressFill.style.width = ((state.current)/(state.questions.length-1 || 1))*100 + "%";
+  document.getElementById("btn-prev").disabled = state.current === 0;
+  var nextBtn = document.getElementById("btn-save-next");
+  nextBtn.textContent = state.current === state.questions.length-1 ? "Save & Finish" : "Save & Next →";
+  renderPalette();
+  answerInput.focus();
+}
+
+function renderPalette(){
+  var html = "";
+  state.answers.forEach(function(a, i){
+    var cls = "st-" + (a.status === "answered" ? "answered" : a.status === "skipped" ? "skipped" : "none");
+    if(i === state.current) cls += " st-current";
+    html += '<button type="button" class="'+cls+'" data-i="'+i+'">'+(i+1)+'</button>';
+  });
+  paletteEl.innerHTML = html;
+}
+paletteEl.addEventListener("click", function(e){
+  var btn = e.target.closest("button[data-i]");
+  if(!btn) return;
+  syncCurrentAnswer();
+  state.current = parseInt(btn.getAttribute("data-i"),10);
+  if(state.answers[state.current].status === "unvisited") state.answers[state.current].status = "visiting";
+  renderQuestion();
+});
+paletteToggle.addEventListener("click", function(){
+  paletteWrap.hidden = !paletteWrap.hidden;
+  paletteToggle.textContent = paletteWrap.hidden ? "Show question palette ▾" : "Hide question palette ▴";
+});
+
+document.getElementById("btn-prev").addEventListener("click", function(){
+  if(state.current === 0) return;
+  syncCurrentAnswer();
+  state.current--;
+  if(state.answers[state.current].status === "unvisited") state.answers[state.current].status = "visiting";
+  renderQuestion();
+});
+
+document.getElementById("btn-skip").addEventListener("click", function(){
+  state.answers[state.current].status = "skipped";
+  state.answers[state.current].text = answerInput.value.trim();
+  goNextOrReview();
+});
+
+document.getElementById("btn-save-next").addEventListener("click", function(){
+  var val = answerInput.value.trim();
+  state.answers[state.current].text = val;
+  state.answers[state.current].status = val ? "answered" : "skipped";
+  goNextOrReview();
+});
+
+function goNextOrReview(){
+  if(state.current === state.questions.length-1){
+    openConfirm();
+    return;
+  }
+  state.current++;
+  if(state.answers[state.current].status === "unvisited") state.answers[state.current].status = "visiting";
+  renderQuestion();
+}
+
+answerInput.addEventListener("keydown", function(e){
+  if(e.key === "Enter"){ e.preventDefault(); document.getElementById("btn-save-next").click(); }
+});
+
+/* ============================================================
+   9. CONFIRM / SUBMIT
+   ============================================================ */
+document.getElementById("btn-review").addEventListener("click", function(){
+  syncCurrentAnswer();
+  openConfirm();
+});
+document.getElementById("btn-back-to-test").addEventListener("click", function(){
+  showView(viewTest);
+});
+document.getElementById("btn-confirm-submit").addEventListener("click", function(){
+  finishTest();
+});
+
+function openConfirm(){
+  var answered = state.answers.filter(function(a){return a.status==="answered";}).length;
+  var skipped = state.answers.length - answered;
+  document.getElementById("c-answered").textContent = answered;
+  document.getElementById("c-skipped").textContent = skipped;
+  document.getElementById("c-total").textContent = state.answers.length;
+  document.getElementById("c-time").textContent = fmtTime(state.timeLeftSec);
+  showView(viewConfirm);
+}
+
+/* ============================================================
+   10. FINISH + RESULTS
+   ============================================================ */
+function finishTest(){
+  if(state.timerId) clearInterval(state.timerId);
+  var timeTakenSec = state.totalTimeSec - Math.max(0,state.timeLeftSec);
+
+  var correct=0, wrong=0, skipped=0;
+  var rows = state.questions.map(function(q, i){
+    var a = state.answers[i];
+    var isCorrect = a.text && answersMatch(a.text, q.answer);
+    var wasSkipped = !a.text;
+    if(isCorrect) correct++; else if(wasSkipped) skipped++; else wrong++;
+    return { q:q, userText:a.text, isCorrect:isCorrect, wasSkipped:wasSkipped };
+  });
+
+  document.getElementById("res-score").textContent = correct;
+  document.getElementById("res-outof").textContent = "/ " + state.questions.length;
+  document.getElementById("res-heading").textContent =
+    correct === state.questions.length ? "Perfect score!" :
+    correct === 0 ? "Test complete" : "Test complete";
+  var pct = Math.round((correct/state.questions.length)*100);
+  document.getElementById("res-sub").textContent = pct + "% correct.";
+  document.getElementById("res-correct").textContent = correct;
+  document.getElementById("res-wrong").textContent = wrong;
+  document.getElementById("res-skipped").textContent = skipped;
+  document.getElementById("res-time").textContent = fmtTime(timeTakenSec);
+
+  var listHtml = "";
+  rows.forEach(function(r, i){
+    var tag = r.isCorrect ? "r-correct" : r.wasSkipped ? "r-skipped" : "r-wrong";
+    var tagText = r.isCorrect ? "Correct" : r.wasSkipped ? "Skipped" : "Wrong";
+    var equivKey = r.q.fid + "|" + r.q.dir;
+    var siblings = state.equivMap ? state.equivMap[equivKey] : null;
+    var equivNote = (r.isCorrect && siblings && siblings.length)
+      ? '<div style="color:var(--bad);font-size:.8rem;font-weight:600">⚠ Same value as '+siblings.join(", ")+' — that identity happens to equal this one here, but it is a different formula. Don\'t reuse its working for this question next time; this one is '+r.q.set+' #'+r.q.num+'.</div>'
+      : '';
+    listHtml += '<div class="result-row '+tag+'">' +
+      '<div class="r-top"><span class="sub" style="margin:0">Q'+(i+1)+' · '+r.q.set+' #'+r.q.num+'</span><span class="r-tag">'+tagText+'</span></div>' +
+      '<div class="r-prompt mono">'+renderMath(r.q.prompt)+' = ?</div>' +
+      equivNote +
+      '<div class="r-ans"><b>Your answer</b>'+(r.userText ? renderMath(r.userText) : '<span style="color:var(--ink-soft)">— left blank —</span>')+'</div>' +
+      (r.isCorrect ? '' : '<div class="r-ans"><b>Correct answer</b>'+renderMath(r.q.answer)+'</div>') +
+      '</div>';
+  });
+  document.getElementById("results-list").innerHTML = listHtml;
+
+  showView(viewResults);
+}
+
+document.getElementById("btn-retake").addEventListener("click", function(){
+  showView(viewHome);
+});
+document.getElementById("btn-review-sheet").addEventListener("click", function(){
+  showView(viewHome);
+});
+
+/* ============================================================
+   11. hot-reload friendly boot (no persistent state needed)
+   ============================================================ */
+function start(){ /* home view is default visible */ }
+if(window.claude && window.claude.hot){
+  window.claude.hot.ready ? window.claude.hot.ready(start) : start();
+} else {
+  start();
+}
+
+})();
+</script>
